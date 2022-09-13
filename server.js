@@ -3,7 +3,6 @@ const mysql = require('mysql2');
 //const questions = require('./questions');
 const inquirer = require("inquirer");
 //const queries = require('./queries');
-const cTable = require('console.table');
 
 // Connect to database
 const db = mysql.createConnection({
@@ -29,101 +28,155 @@ db.connect((err) => {
 
 var wait = null;
 
-async function mainMenu() {
+function mainMenu() {
     // main menu
-    while (1) {
-        await inquirer
-            .prompt([{
-                type: 'rawlist',
-                name: 'mainmenu',
-                message: 'What would you like to do? ',
-                choices: [{
-                    value: 'View all departments',
-                    name: 'View all departments'
-                }, {
-                    value: 'View all roles',
-                    name: 'View all roles'
-                }, {
-                    value: 'View all employees',
-                    name: 'View all employees'
-                }, {
-                    value: 'Create department',
-                    name: 'Create department'
-                }, {
-                    value: 'Create employee',
-                    name: 'Create employee'
-                }, {
-                    value: 'Update employee role',
-                    name: 'Update employee role'
-                }, {
-                    value: 'Quit program',
-                    name: 'Quit program'
-                }]
-            }])
-            .then(async(answers) => {
-                switch (answers.mainmenu) {
-                    case 'View all departments':
-                        wait = await viewAllDepartments();
-                        break;
-                    case 'View all roles':
-                        wait = await viewAllRoles();
-                        break;
-                    case 'View all employees':
-                        wait = await viewAllEmployees();
-                        break;
-                    case 'Create department':
-                        wait = await questionsCreateDepartment();
-                        break;
-                    case 'Create employee':
-                        wait = await questionsCreateEmployee();
-                        break;
-                    case 'Update employee role':
-                        wait = await questionsUpdateEmployeeRole();
-                        break;
-                    case 'Quit program':
-                        process.exit(0);
-                }
-            });
-    }
+    inquirer
+        .prompt([{
+            type: 'list',
+            name: 'mainmenu',
+            message: 'What would you like to do? ',
+            choices: [{
+                value: 'View all departments',
+                name: 'View all departments'
+            }, {
+                value: 'View all roles',
+                name: 'View all roles'
+            }, {
+                value: 'View all employees',
+                name: 'View all employees'
+            }, {
+                value: 'Create department',
+                name: 'Create department'
+            }, {
+                value: 'Create role',
+                name: 'Create role'
+            }, {
+                value: 'Create employee',
+                name: 'Create employee'
+            }, {
+                value: 'Update employee role',
+                name: 'Update employee role'
+            }, {
+                value: 'Quit program',
+                name: 'Quit program'
+            }]
+        }])
+        .then((answers) => {
+            switch (answers.mainmenu) {
+                case 'View all departments':
+                    viewAllDepartments();
+                    break;
+                case 'View all roles':
+                    viewAllRoles();
+                    break;
+                case 'View all employees':
+                    viewAllEmployees();
+                    break;
+                case 'Create department':
+                    inquirer
+                        .prompt([{
+                            type: 'input',
+                            name: 'deptName',
+                            message: 'Department name: '
+                        }])
+                        .then((answers) => {
+                            createDepartment(answers.deptName);
+                        })
+                    break;
+                case 'Create role':
+                    inquirer
+                        .prompt([{
+                            type: 'input',
+                            name: 'roleName',
+                            message: 'Role name: '
+                        }])
+                        .then((answers) => {
+                            createRole(answers.roleName);
+                        })
+                    break;
+                case 'Create employee':
+                    questionsCreateEmployee();
+                    break;
+                case 'Update employee role':
+                    questionsUpdateEmployeeRole();
+                    break;
+                case 'Quit program':
+                    process.exit(0);
+            }
+        });
 }
 
-async function viewAllDepartments() {
-    db.query({ sql: `SELECT * FROM departments;` }, function(err, results, fields) {
-        console.table('\n', results);
-    })
+function viewAllDepartments() {
+    const mysql = `SELECT * FROM departments`;
+    db.query(mysql, (err, rows) => {
+        if (err) throw err;
+        console.log('\n');
+        console.table(rows);
+        mainMenu();
+    });
 }
 
-async function viewAllRoles() {
-    db.query({ sql: `SELECT * FROM roles;` }, function(err, results, fields) {
-        console.table('\n', results);
-    })
+function viewAllRoles() {
+    const mysql = `SELECT * FROM roles`;
+    db.query(mysql, (err, rows) => {
+        if (err) throw err;
+        console.log('\n');
+        console.table(rows);
+        mainMenu();
+    });
 }
 
-async function viewAllEmployees() {
-    db.query({ sql: `SELECT * FROM employees;` }, function(err, results, fields) {
-        console.table('\n', results);
-    })
+function viewAllEmployees() {
+    const mysql = `SELECT * FROM employees`;
+    db.query(mysql, (err, rows) => {
+        if (err) throw err;
+        console.log('\n');
+        console.table(rows);
+        mainMenu();
+    });
 }
 
-async function createDepartment(deptName) {
-
+function createDepartment(deptName) {
+    const mysql = `INSERT INTO departments (name)
+    VALUES ("${deptName}")`;
+    db.query(mysql, deptName, (err, rows) => {
+        if (err) throw err;
+        console.log(`\nAdded '${deptName}' to the departments table.`);
+        mainMenu();
+    });
 }
 
-async function createRole() {
-
+function createRole(roleName) {
+    const mysql = `INSERT INTO roles (title)
+    VALUES ("${roleName}")`;
+    db.query(mysql, roleName, (err, rows) => {
+        if (err) throw err;
+        console.log(`\nAdded '${roleName}' to the roles table.`);
+        mainMenu();
+    });
 }
 
-async function createEmployee(fName, lName, role, managerId) {
-
+function createEmployee(fName, lName, role, managerId) {
+    const mysql = ``;
+    db.query(mysql, (err, rows) => {
+        if (err) throw err;
+        console.log('\n');
+        console.table(rows);
+        mainMenu();
+    });
 }
 
-async function updateEmployeeRole() {
-
+function updateEmployeeRole() {
+    const mysql = ``;
+    db.query(mysql, (err, rows) => {
+        if (err) throw err;
+        console.log('\n');
+        console.table(rows);
+        mainMenu();
+    });
 }
 
-
-
-async function questionsCreateDepartment() {
+function questionsCreateDepartment() {
     // menu to create department
     inquirer
         .prompt([{
@@ -136,7 +189,7 @@ async function questionsCreateDepartment() {
         })
 }
 
-async function questionsCreateEmployee() {
+function questionsCreateEmployee() {
     // menu to create employee
     inquirer
         .prompt([{
@@ -162,7 +215,7 @@ async function questionsCreateEmployee() {
 
 }
 
-async function questionsUpdateEmployeeRole() {
+function questionsUpdateEmployeeRole() {
 
 }
 
