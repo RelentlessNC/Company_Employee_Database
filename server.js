@@ -1,8 +1,6 @@
 // Import and require mysql2
 const mysql = require('mysql2');
-//const questions = require('./questions');
 const inquirer = require("inquirer");
-//const queries = require('./queries');
 
 // Connect to database
 const db = mysql.createConnection({
@@ -21,12 +19,6 @@ db.connect((err) => {
         throw err;
     }
 });
-
-// module.exports = db;
-
-// questions.mainMenu();
-
-var wait = null;
 
 function mainMenu() {
     // main menu
@@ -89,16 +81,56 @@ function mainMenu() {
                             type: 'input',
                             name: 'roleName',
                             message: 'Role name: '
+                        }, {
+                            type: 'input',
+                            name: 'salary',
+                            message: 'Salary: '
+                        }, {
+                            type: 'input',
+                            name: 'departmentId',
+                            message: 'Department ID: '
                         }])
                         .then((answers) => {
-                            createRole(answers.roleName);
+                            createRole(answers.roleName, answers.salary, answers.departmentId);
                         })
                     break;
                 case 'Create employee':
-                    questionsCreateEmployee();
+                    inquirer
+                        .prompt([{
+                            type: 'input',
+                            name: 'fName',
+                            message: 'First name: '
+                        }, {
+                            type: 'input',
+                            name: 'lName',
+                            message: 'Last name: '
+                        }, {
+                            type: 'input',
+                            name: 'role',
+                            message: 'Role ID: '
+                        }, {
+                            type: 'input',
+                            name: 'managerId',
+                            message: "Manager's ID: "
+                        }])
+                        .then((answers) => {
+                            createEmployee(answers.fName, answers.lName, answers.role, answers.managerId);
+                        })
                     break;
                 case 'Update employee role':
-                    questionsUpdateEmployeeRole();
+                    inquirer
+                        .prompt([{
+                            type: 'input',
+                            name: 'employeeId',
+                            message: 'ID of Employee to update: '
+                        }, {
+                            type: 'input',
+                            name: 'newRole',
+                            message: 'What is their new role? '
+                        }])
+                        .then((answers) => {
+                            updateEmployeeRole(answers.employeeId, answers.newRole);
+                        })
                     break;
                 case 'Quit program':
                     process.exit(0);
@@ -107,7 +139,7 @@ function mainMenu() {
 }
 
 function viewAllDepartments() {
-    const mysql = `SELECT * FROM departments`;
+    const mysql = `SELECT id AS 'ID', name AS 'Department' FROM departments`;
     db.query(mysql, (err, rows) => {
         if (err) throw err;
         console.log('\n');
@@ -117,7 +149,7 @@ function viewAllDepartments() {
 }
 
 function viewAllRoles() {
-    const mysql = `SELECT * FROM roles`;
+    const mysql = `SELECT roles.id AS 'ID',roles.title AS 'Title',roles.salary AS 'Salary', departments.name AS 'Department' FROM roles JOIN departments ON roles.department_id = departments.id`;
     db.query(mysql, (err, rows) => {
         if (err) throw err;
         console.log('\n');
@@ -127,7 +159,7 @@ function viewAllRoles() {
 }
 
 function viewAllEmployees() {
-    const mysql = `SELECT * FROM employees`;
+    const mysql = `SELECT employees.id AS 'ID', CONCAT(employees.first_name, ' ', employees.last_name) AS 'Name', roles.title AS 'Title', manager_id AS "Manager's ID" FROM employees JOIN roles ON employees.role_id = roles.id`;
     db.query(mysql, (err, rows) => {
         if (err) throw err;
         console.log('\n');
@@ -146,10 +178,10 @@ function createDepartment(deptName) {
     });
 }
 
-function createRole(roleName) {
-    const mysql = `INSERT INTO roles (title)
-    VALUES ("${roleName}")`;
-    db.query(mysql, roleName, (err, rows) => {
+function createRole(roleName, salary, deptId) {
+    const mysql = `INSERT INTO roles (title,salary,department_id)
+    VALUES ("${roleName}","${salary}","${deptId}")`;
+    db.query(mysql, (err, rows) => {
         if (err) throw err;
         console.log(`\nAdded '${roleName}' to the roles table.`);
         mainMenu();
@@ -157,66 +189,22 @@ function createRole(roleName) {
 }
 
 function createEmployee(fName, lName, role, managerId) {
-    const mysql = ``;
+    const mysql = `INSERT INTO employees (first_name,last_name,role_id,manager_id)
+    VALUES("${fName}","${lName}","${role}","${managerId}")`;
     db.query(mysql, (err, rows) => {
         if (err) throw err;
-        console.log('\n');
-        console.table(rows);
+        console.log(`\nAdded ${fName} ${lName} to employees.`);
         mainMenu();
     });
 }
 
-function updateEmployeeRole() {
-    const mysql = ``;
+function updateEmployeeRole(eId, nRole) {
+    const mysql = `UPDATE employees SET role_id = "${nRole}" WHERE id = "${eId}";`;
     db.query(mysql, (err, rows) => {
         if (err) throw err;
-        console.log('\n');
-        console.table(rows);
+        console.log(`\nUpdated employee with ID ${eId}`);
         mainMenu();
     });
-}
-
-function questionsCreateDepartment() {
-    // menu to create department
-    inquirer
-        .prompt([{
-            type: 'input',
-            name: 'deptName',
-            message: 'Department name: '
-        }])
-        .then((answers) => {
-            createDepartment(answers.deptName);
-        })
-}
-
-function questionsCreateEmployee() {
-    // menu to create employee
-    inquirer
-        .prompt([{
-            type: 'input',
-            name: 'fName',
-            message: "Employee's first name: "
-        }, {
-            type: 'input',
-            name: 'lName',
-            message: "Employee's last name: "
-        }, {
-            type: 'input',
-            name: 'role',
-            message: "Employee's role: "
-        }, {
-            type: 'input',
-            name: 'managerId',
-            message: "Employee manager's id: "
-        }])
-        .then((answers) => {
-            createEmployee(answers.fName, answers.lName, answers.role, answers.managerId);
-        })
-
-}
-
-function questionsUpdateEmployeeRole() {
-
 }
 
 mainMenu();
