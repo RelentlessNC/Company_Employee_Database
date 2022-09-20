@@ -10,8 +10,8 @@ This is a console based application using Node.js and MySQL2 to create a databas
 
 - JavaScript
 - Node.js
-- Inquirer
-- MySQL2
+- [Inquirer](https://www.npmjs.com/package/inquirer)
+- [MySQL2](https://www.npmjs.com/package/mysql2)
 
 ## Code Information
 
