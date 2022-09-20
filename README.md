@@ -4,16 +4,14 @@
 
 This is a console based application using Node.js and MySQL2 to create a database to keep track of a company's employees.  Track employees, departments, and roles.
 
+## [Video walkthrough](https://youtu.be/bNQQ0aaK5YQ)
+
 ## Technologies Used
 
 - JavaScript
 - Node.js
 - Inquirer
 - MySQL2
-
-## Video walkthrough
-
-[VIDEO DEMO](https://youtu.be/bNQQ0aaK5YQ)
 
 ## Code Information
 
